@@ -1,0 +1,65 @@
+Work flow 
+- environment: linux systemd service (continuous unless 
+  stopped/permanently disabled)
+- start up: load configuration (listen port, plugin folder, number of 
+  simultaneous tests), start application loop
+- application loop: load plugin and its configuration, identify “most 
+  expired” plugins ignoring “too recent” plugins, perform at most N tests 
+  simultaneously, store results, sleep, restart application loop
+- results: via URL, load stored results and render report
+
+Data flow: tests
+- load configuration
+- run test
+- capture results data
+- refactor results data to plugin structure
+
+Data flow: report
+- identify results of each individual test
+- aggregate results from each test
+- generate result data in JSON
+- render JSON result data (HTTP, cli, /proc/auth0readiness, etc.)
+
+Configurable items:
+- systemd configuration: Unit section (Description, After), Service 
+  section (WorkingDirectory, ExecStart, Restart, User, Group), Install 
+  section (WantedBy)
+- daemon configuration: number of simultaneous checks, report port, 
+  plugin folder
+- plugin configuration: name, frequency in seconds, help link
+- report: render format (dynamic on generation: JSON, HTML, text)
+
+Variable storage items:
+- last execution time for each plugin
+- results for each plugin
+
+Estimate timeframes:
+    2018.07.16 targeted completion
+        - data structures defined
+        - data interfaces defined
+        - basic service flow (testing stub, reporting stub)
+    2018.07.18 targeted completion
+        - plugin framework
+        - enhance service (plugin tests, reporting via JSON)
+    2018.07.19 targeted completion
+        - thread management
+    2018.07.20 targeted completion
+
+**** 
+Determine data structures: 
+**** 
+
+Determine interface: daemon to plugin
+
+Determine data interface: plugin to test results
+
+Determine data interface: test results to reporting
+
+Build basic testing service
+
+Build basic report service
+
+Enhance testing service with plugin framework
+
+Enhance testing service with thread/process management
+
