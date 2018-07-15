@@ -40,6 +40,12 @@ process.on('SIGTERM', function () {
   });
 });
 
+// register a callback to handle configuration reload properly
+process.on('SIGHUP', function () {
+  log.info('readiness server caught SIGHUP, reloading configuration');
+  // TODO: reload the configuration and then update the variables
+});
+
 log.info('readiness server running at port %d', iPortNumber);
 
 // TODO: perform the application loop
