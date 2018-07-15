@@ -27,7 +27,7 @@ var log = bunyan.createLogger({
 }); 
 
 // create the server handler for the report
-http.createServer(function (req, res) {
+var oServerReport = http.createServer(function (req, res) {
    res.writeHead(200, {'Content-Type': 'text/plain'});
    res.end('readiness is not yet ready\n');
 }).listen(iPortNumber);
@@ -35,6 +35,12 @@ http.createServer(function (req, res) {
 log.info('readiness server running at port %d', iPortNumber);
 
 // TODO: register a callback to handle shutdown properly
+process.on('SIGTERM', function () {
+  oServerReport.close(function () {
+    log.info('readiness server caught SIGTERM, stopping on port %d', iPortNumber);
+    process.exit(0);
+  });
+});
 
 // TODO: perform the application loop
 
