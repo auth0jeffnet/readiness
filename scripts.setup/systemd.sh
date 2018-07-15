@@ -9,6 +9,11 @@ echo TODO: checking for auth0 readiness.service
 # and if it already exists, these steps should not be performed since
 # they have likely already been performed
 # 
+# NOTE: this *CAN* be installed in userland as a user process by
+# following the systemd/User guide at https://wiki.archlinux.org/index.php/Systemd/User
+# and then referencing it with systemctl using the --user flag:
+#     systemctl --user start readiness
+#     systemctl --user enable myapp
 
 # TODO: this should attempt to copy the readiness.service file into
 # its appropriate location
