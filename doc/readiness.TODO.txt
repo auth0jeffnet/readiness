@@ -21,7 +21,6 @@ Data flow: report
 - render JSON result data (HTTP, cli, /proc/auth0readiness, etc.)
 
 Configurable items:
-
 - systemd configuration: Unit section (Description, After), Service 
   section (WorkingDirectory, ExecStart, Restart, User, Group), Install 
   section (WantedBy)
@@ -33,6 +32,10 @@ Configurable items:
 Variable storage items:
 - last execution time for each plugin
 - results for each plugin
+
+**** 
+Estimate timeframes
+**** 
 
 Determine data structures: 
 
