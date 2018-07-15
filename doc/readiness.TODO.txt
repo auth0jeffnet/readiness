@@ -33,11 +33,21 @@ Variable storage items:
 - last execution time for each plugin
 - results for each plugin
 
-**** 
-Estimate timeframes
-**** 
+Estimate timeframes:
+    2018.07.16 targeted completion
+        - data structures defined
+        - data interfaces defined
+        - basic service flow (testing stub, reporting stub)
+    2018.07.18 targeted completion
+        - plugin framework
+        - enhance service (plugin tests, reporting via JSON)
+    2018.07.19 targeted completion
+        - thread management
+    2018.07.20 targeted completion
 
+**** 
 Determine data structures: 
+**** 
 
 Determine interface: daemon to plugin
 
