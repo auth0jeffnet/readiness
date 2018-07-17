@@ -10,6 +10,7 @@ iPortNumber = 54321;
 // the log file for the service
 sLogFileInfoLog = '/tmp/readiness-info.log'
 iWaitTimeInMilliseconds = 3000;
+sReportData = '{"details":"readiness is not yet ready"}';
 
 // declare a bunyan logging instance
 var log = bunyan.createLogger({
@@ -50,8 +51,8 @@ process.on('SIGTERM', function () {
 
 // create the server handler for the report
 var oServerReport = http.createServer(function (req, res) {
-   res.writeHead(200, {'Content-Type': 'text/plain'});
-   res.end('readiness is not yet ready\n');
+   res.writeHead(200, {'Content-Type': 'text/json'});
+   res.end(sReportData);
 }).listen(iPortNumber);
 
 log.info('readiness server running at port %d', iPortNumber);
