@@ -9,6 +9,8 @@ var bunyan = require('bunyan');
 iPortNumber = 54321;
 // the log file for the service
 sLogFileInfoLog = '/tmp/readiness-info.log'
+iWaitTimeInMilliseconds = 3000;
+sReportData = '{"details":"readiness is not yet ready"}';
 
 // declare a bunyan logging instance
 var log = bunyan.createLogger({
@@ -26,19 +28,21 @@ var log = bunyan.createLogger({
     ]
 });
 
-// create the server handler for the report
-var oServerReport = http.createServer(function (req, res) {
-   res.writeHead(200, {'Content-Type': 'text/plain'});
-   res.end('readiness is not yet ready\n');
-}).listen(iPortNumber);
+function determineTimeNowInSeconds() {
+   var iDtsNowInMilliseconds = (new Date).getTime();
+   var iDtsNowInSeconds = Math.floor(iDtsNowInMilliseconds / 1000);
 
-// register a callback to handle shutdown properly
-process.on('SIGTERM', function () {
-  oServerReport.close(function () {
-    log.info('readiness server caught SIGTERM, stopping on port %d', iPortNumber);
-    process.exit(0);
-  });
-});
+   return iDtsNowInSeconds;
+};
+
+function determineElapsedTimeInSeconds( iStartTimeInSeconds ) {
+   var iElapsedTime = determineTimeNowInSeconds() - iDtsStartupInSeconds;
+
+   return iElapsedTime;
+};
+
+var iDtsStartupInSeconds = determineTimeNowInSeconds();
+log.info('readiness startup requested at epoch time: %d', iDtsStartupInSeconds);
 
 // register a callback to handle configuration reload properly
 process.on('SIGHUP', function () {
@@ -46,8 +50,41 @@ process.on('SIGHUP', function () {
   // TODO: reload the configuration and then update the variables
 });
 
+// register a callback to handle shutdown properly
+process.on('SIGTERM', function () {
+  oServerReport.close(function () {
+    var iDtsNowInSeconds = determineTimeNowInSeconds();
+    var iElapsedTime = determineElapsedTimeInSeconds( iDtsNowInSeconds );
+    log.info('readiness server caught SIGTERM, shutdown requested at epoch time %d after running for %d seconds', iDtsNowInSeconds, iElapsedTime);
+    process.exit(0);
+  });
+});
+
+// create the server handler for the report
+var oServerReport = http.createServer(function (req, res) {
+   res.writeHead(200, {'Content-Type': 'text/json'});
+   res.end(sReportData);
+}).listen(iPortNumber);
+
 log.info('readiness server running at port %d', iPortNumber);
 
-// TODO: perform the application loop
+// create the handler for the checks
+function handlerChecker() {
+   var iDtsNowInSeconds = determineTimeNowInSeconds();
+   var iElapsedTime = determineElapsedTimeInSeconds( iDtsNowInSeconds );
+   log.info('readiness server handlerChecker awake at epoch time %d after running for %d seconds', iDtsNowInSeconds, iElapsedTime);
+
+   // request a call to ourselves after a delay to start the check
+   // cycle again
+   setTimeout(handlerChecker, iWaitTimeInMilliseconds);
+};
+
+log.info('readiness server running loop for tests via plugins' );
+
+// perform the application loop
+// To start the checker instantly, call it directly: handlerChecker();
+// To start the checker after its normal delay, call it via a timeout: setTimeout(handlerChecker, iWaitTimeInMilliseconds);
+// setTimeout(handlerChecker, iWaitTimeInMilliseconds);
+handlerChecker();
 
 
