@@ -9,6 +9,7 @@ var bunyan = require('bunyan');
 iPortNumber = 54321;
 // the log file for the service
 sLogFileInfoLog = '/tmp/readiness-info.log'
+iWaitTimeInMilliseconds = 3000;
 
 // declare a bunyan logging instance
 var log = bunyan.createLogger({
@@ -26,19 +27,9 @@ var log = bunyan.createLogger({
     ]
 });
 
-// create the server handler for the report
-var oServerReport = http.createServer(function (req, res) {
-   res.writeHead(200, {'Content-Type': 'text/plain'});
-   res.end('readiness is not yet ready\n');
-}).listen(iPortNumber);
-
-// register a callback to handle shutdown properly
-process.on('SIGTERM', function () {
-  oServerReport.close(function () {
-    log.info('readiness server caught SIGTERM, stopping on port %d', iPortNumber);
-    process.exit(0);
-  });
-});
+var iDtsStartupInMilliseconds = (new Date).getTime();
+var iDtsStartupInSeconds = Math.floor(iDtsStartupInMilliseconds / 1000)
+log.info('readiness startup requested at epoch time: %d', iDtsStartupInSeconds);
 
 // register a callback to handle configuration reload properly
 process.on('SIGHUP', function () {
@@ -46,8 +37,40 @@ process.on('SIGHUP', function () {
   // TODO: reload the configuration and then update the variables
 });
 
+// register a callback to handle shutdown properly
+process.on('SIGTERM', function () {
+  oServerReport.close(function () {
+    var iDtsShutdownInMilliseconds = (new Date).getTime();
+    var iDtsShutdownInSeconds = Math.floor(iDtsShutdownInMilliseconds / 1000);
+    var iElapsedTime = iDtsShutdownInSeconds - iDtsStartupInSeconds;
+    log.info('readiness server caught SIGTERM, shutdown requested at epoch time %d after running for %d seconds', iDtsShutdownInSeconds, iElapsedTime);
+    process.exit(0);
+  });
+});
+
+// create the server handler for the report
+var oServerReport = http.createServer(function (req, res) {
+   res.writeHead(200, {'Content-Type': 'text/plain'});
+   res.end('readiness is not yet ready\n');
+}).listen(iPortNumber);
+
 log.info('readiness server running at port %d', iPortNumber);
 
+// create the handler for the checks
+function handlerChecker() {
+   var iDtsNowInMilliseconds = (new Date).getTime();
+   var iDtsNowInSeconds = Math.floor(iDtsNowInMilliseconds / 1000);
+   var iElapsedTime = iDtsNowInSeconds - iDtsStartupInSeconds;
+   log.info('readiness server handlerChecker awake at epoch time %d after running for %d seconds', iDtsNowInSeconds, iElapsedTime);
+
+   // request a call to ourselves after a delay to start the check
+   // cycle again
+   setTimeout(handlerChecker, iWaitTimeInMilliseconds);
+};
+
 // TODO: perform the application loop
+
+// handlerChecker();
+setTimeout(handlerChecker, iWaitTimeInMilliseconds);
 
 
