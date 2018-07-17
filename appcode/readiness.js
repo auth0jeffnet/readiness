@@ -9,6 +9,7 @@ var bunyan = require('bunyan');
 iPortNumber = 54321;
 // the log file for the service
 sLogFileInfoLog = '/tmp/readiness-info.log'
+iWaitTimeInMilliseconds = 3000;
 
 // declare a bunyan logging instance
 var log = bunyan.createLogger({
@@ -55,5 +56,21 @@ var oServerReport = http.createServer(function (req, res) {
 
 log.info('readiness server running at port %d', iPortNumber);
 
+// create the handler for the checks
+function handlerChecker() {
+   var iDtsNowInMilliseconds = (new Date).getTime();
+   var iDtsNowInSeconds = Math.floor(iDtsNowInMilliseconds / 1000);
+   var iElapsedTime = iDtsNowInSeconds - iDtsStartupInSeconds;
+   log.info('readiness server handlerChecker awake at epoch time %d after running for %d seconds', iDtsNowInSeconds, iElapsedTime);
+
+   // request a call to ourselves after a delay to start the check
+   // cycle again
+   setTimeout(handlerChecker, iWaitTimeInMilliseconds);
+};
+
 // TODO: perform the application loop
+
+// handlerChecker();
+setTimeout(handlerChecker, iWaitTimeInMilliseconds);
+
 
