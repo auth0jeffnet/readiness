@@ -79,9 +79,12 @@ function handlerChecker() {
    setTimeout(handlerChecker, iWaitTimeInMilliseconds);
 };
 
-// TODO: perform the application loop
+log.info('readiness server running loop for tests via plugins' );
 
-// handlerChecker();
-setTimeout(handlerChecker, iWaitTimeInMilliseconds);
+// perform the application loop
+// To start the checker instantly, call it directly: handlerChecker();
+// To start the checker after its normal delay, call it via a timeout: setTimeout(handlerChecker, iWaitTimeInMilliseconds);
+// setTimeout(handlerChecker, iWaitTimeInMilliseconds);
+handlerChecker();
 
 
