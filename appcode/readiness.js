@@ -2,6 +2,7 @@
 var http = require('http');
 var bunyan = require('bunyan');
 var fs = require('fs');
+var redis = require('redis');
 
 ////////////////////////////////////////////////////////////////
 // configuration: TODO: should go into a configuration file
@@ -10,8 +11,12 @@ var fs = require('fs');
 iPortNumber = 54321;
 // the log file for the service
 sLogFileInfoLog = '/tmp/readiness-info.log'
-iWaitTimeInMilliseconds = 3000;
 var sFolderNamePlugins = './plugins/';
+// whlie these are the default settings, they are specified here
+// to keep the code the same if there are other desired settings
+iPortRedis = 6379;
+sHostRedis = '127.0.0.1';
+iWaitTimeInMilliseconds = 3000;
 sReportData = '{"details":"readiness is not yet ready"}';
 
 // declare a bunyan logging instance
@@ -98,6 +103,11 @@ function checkExistenceDirectory(sDirectoryName) {
   return bReturnValue;
 };
 
+// create the redis client
+var client = redis.createClient(iPortRedis, sHostRedis);
+
+
+// determine if the plugins folder exists
 if( checkExistenceDirectory(sFolderNamePlugins) == false ) {
   log.info('readiness unable to find plugin folder: %s', sFolderNamePlugins);
   // while this directory could be created using the code
@@ -113,7 +123,7 @@ fs.readdir(sFolderNamePlugins, (err, files) => {
   files.forEach(file => {
     log.info('readiness found file within plugin folder: %s', file);
   });
-})
+});
 
 // perform the application loop
 // To start the checker instantly, call it directly: handlerChecker();
