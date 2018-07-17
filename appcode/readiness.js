@@ -26,19 +26,9 @@ var log = bunyan.createLogger({
     ]
 });
 
-// create the server handler for the report
-var oServerReport = http.createServer(function (req, res) {
-   res.writeHead(200, {'Content-Type': 'text/plain'});
-   res.end('readiness is not yet ready\n');
-}).listen(iPortNumber);
-
-// register a callback to handle shutdown properly
-process.on('SIGTERM', function () {
-  oServerReport.close(function () {
-    log.info('readiness server caught SIGTERM, stopping on port %d', iPortNumber);
-    process.exit(0);
-  });
-});
+var iDtsStartupInMilliseconds = (new Date).getTime();
+var iDtsStartupInSeconds = Math.floor(iDtsStartupInMilliseconds / 1000)
+log.info('readiness startup requested at epoch time: %d', iDtsStartupInSeconds);
 
 // register a callback to handle configuration reload properly
 process.on('SIGHUP', function () {
@@ -46,8 +36,24 @@ process.on('SIGHUP', function () {
   // TODO: reload the configuration and then update the variables
 });
 
+// register a callback to handle shutdown properly
+process.on('SIGTERM', function () {
+  oServerReport.close(function () {
+    var iDtsShutdownInMilliseconds = (new Date).getTime();
+    var iDtsShutdownInSeconds = Math.floor(iDtsShutdownInMilliseconds / 1000);
+    var iElapsedTime = iDtsShutdownInSeconds - iDtsStartupInSeconds;
+    log.info('readiness server caught SIGTERM, shutdown requested at epoch time %d after running for %d seconds', iDtsShutdownInSeconds, iElapsedTime);
+    process.exit(0);
+  });
+});
+
+// create the server handler for the report
+var oServerReport = http.createServer(function (req, res) {
+   res.writeHead(200, {'Content-Type': 'text/plain'});
+   res.end('readiness is not yet ready\n');
+}).listen(iPortNumber);
+
 log.info('readiness server running at port %d', iPortNumber);
 
 // TODO: perform the application loop
-
 
