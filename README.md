@@ -10,6 +10,7 @@ connectivity.
 # npm requirements
 * http
 * bunyan
+* redis
 
 # Signals
 * **SIGHUP** reloads the configuration for the service/daemon
