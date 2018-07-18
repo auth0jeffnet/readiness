@@ -128,7 +128,8 @@ fs.readdir(sFolderNamePlugins, (err, files) => {
       var sRequireFileName = file.substring( 0, file.indexOf( ".js" ) );
       var sRequireFile = "./plugins/"+sRequireFileName;
       var plugin = require( sRequireFile );
-      plugin.helloPlugin();
+      sPluginName = plugin.getPluginName();
+      log.info('readiness obtained plugin name: %s',sPluginName);
     } else {
       log.info('readiness found file without .js extension, not treating as a plugin: %s', file);
     };

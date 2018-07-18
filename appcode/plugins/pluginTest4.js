@@ -1,9 +1,9 @@
 
-iFrequencyInSeconds = 30;
+iFrequencyInSeconds = 0;
 sVersionPlugin = "20180718r001";
-sNamePlugin = "Test Plugin 2 at 30 seconds";
-sDescriptionPluginShort = "Performs a test every 30 seconds";
-sDescriptionPluginLong = "Performs a TODO SOME KIND OF TEST test every 30 seconds (twice per minute)";
+sNamePlugin = "Test Plugin 4 at 0 seconds (check once only)";
+sDescriptionPluginShort = "Performs a test only once";
+sDescriptionPluginLong = "Performs a TODO SOME KIND OF TEST only once at readiness service startup";
 
 module.exports = {
 
