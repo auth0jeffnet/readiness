@@ -122,8 +122,13 @@ if( checkExistenceDirectory(sFolderNamePlugins) == false ) {
 fs.readdir(sFolderNamePlugins, (err, files) => {
   files.forEach(file => {
     log.info('readiness found file within plugin folder: %s', file);
+    // TODO: this should handle other extensions such as python py, bash scripts, etc.
     if( file.endsWith('.js') == true ) {
       log.info('readiness found file with .js extension: %s', file);
+      var sRequireFileName = file.substring( 0, file.indexOf( ".js" ) );
+      var sRequireFile = "./plugins/"+sRequireFileName;
+      var plugin = require( sRequireFile );
+      plugin.helloPlugin();
     } else {
       log.info('readiness found file without .js extension, not treating as a plugin: %s', file);
     };
