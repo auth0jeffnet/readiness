@@ -122,6 +122,11 @@ if( checkExistenceDirectory(sFolderNamePlugins) == false ) {
 fs.readdir(sFolderNamePlugins, (err, files) => {
   files.forEach(file => {
     log.info('readiness found file within plugin folder: %s', file);
+    if( file.endsWith('.js') == true ) {
+      log.info('readiness found file with .js extension: %s', file);
+    } else {
+      log.info('readiness found file without .js extension, not treating as a plugin: %s', file);
+    };
   });
 });
 
