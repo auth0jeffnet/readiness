@@ -12,7 +12,14 @@ connectivity.
 * bunyan
 * redis
 
-# Signals
+# Service Control
+## systemd
+The preferred method for starting, reloading and stopping the service is through
+the systemd interface (i.e. `systemctl start readiness` to start the service).
+
+## Signals
+While systemd should be used to control the service under normal circumstances,
+signals can be issued directly to the process to perform various actions:
 * **SIGHUP** reloads the configuration for the service/daemon
 * **SIGTERM** terminates the service/daemon gracefully
 
