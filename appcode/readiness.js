@@ -1,6 +1,8 @@
 // declare variables for the require objects
 var http = require('http');
 var bunyan = require('bunyan');
+var fs = require('fs');
+var redis = require('redis');
 
 ////////////////////////////////////////////////////////////////
 // configuration: TODO: should go into a configuration file
@@ -9,6 +11,11 @@ var bunyan = require('bunyan');
 iPortNumber = 54321;
 // the log file for the service
 sLogFileInfoLog = '/tmp/readiness-info.log'
+var sFolderNamePlugins = './plugins/';
+// whlie these are the default settings, they are specified here
+// to keep the code the same if there are other desired settings
+iPortRedis = 6379;
+sHostRedis = '127.0.0.1';
 iWaitTimeInMilliseconds = 3000;
 sReportData = '{"details":"readiness is not yet ready"}';
 
@@ -80,6 +87,53 @@ function handlerChecker() {
 };
 
 log.info('readiness server running loop for tests via plugins' );
+
+// checks for directory existence synchronously
+// synchronous operations are great for performing one-time file/directory
+// operations before returning a module. For example, bootstrapping a
+// configuration file
+function checkExistenceDirectory(sDirectoryName) {
+  bReturnValue = false;
+  try {
+    fs.statSync(sDirectoryName);
+    bReturnValue = true;
+  } catch(eEx) {
+    log.info('detected directory does not exist: %s', sDirectoryName);
+  };
+  return bReturnValue;
+};
+
+// create the redis client
+var client = redis.createClient(iPortRedis, sHostRedis);
+
+
+// determine if the plugins folder exists
+if( checkExistenceDirectory(sFolderNamePlugins) == false ) {
+  log.info('readiness unable to find plugin folder: %s', sFolderNamePlugins);
+  // while this directory could be created using the code
+  // fs.mkdirSync(sDirectoryName);
+  // this is probably the least-expected action since the
+  // user would likely have specified a plugin folder they
+  // expected to exist
+} else {
+  log.info('readiness found plugin folder: %s', sFolderNamePlugins);
+};
+
+fs.readdir(sFolderNamePlugins, (err, files) => {
+  files.forEach(file => {
+    log.info('readiness found file within plugin folder: %s', file);
+    // TODO: this should handle other extensions such as python py, bash scripts, etc.
+    if( file.endsWith('.js') == true ) {
+      log.info('readiness found file with .js extension: %s', file);
+      var sRequireFileName = file.substring( 0, file.indexOf( ".js" ) );
+      var sRequireFile = "./plugins/"+sRequireFileName;
+      var plugin = require( sRequireFile );
+      plugin.helloPlugin();
+    } else {
+      log.info('readiness found file without .js extension, not treating as a plugin: %s', file);
+    };
+  });
+});
 
 // perform the application loop
 // To start the checker instantly, call it directly: handlerChecker();
