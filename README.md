@@ -10,7 +10,6 @@ connectivity.
 # npm requirements
 * http
 * bunyan
-* redis
 
 # Service Control
 ## systemd
