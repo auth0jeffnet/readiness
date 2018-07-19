@@ -12,6 +12,7 @@ iPortNumber = 54321;
 sLogFileInfoLog = '/tmp/readiness-info.log'
 var sFolderNamePlugins = './plugins/';
 sReportData = '{"details":"readiness is not yet ready"}';
+iTimeInSecondsPluginLoop = 5000;
 
 // declare a bunyan logging instance
 var log = bunyan.createLogger({
@@ -112,22 +113,38 @@ function handlePluginResultsCallback(log,sResults) {
    log.debug('updated report data: %s',sReportData);
 };
 
-// load and start the plugins
-fs.readdir(sFolderNamePlugins, (err, files) => {
-  files.forEach(file => {
-    log.info('readiness found file within plugin folder: %s', file);
-    // TODO: this should handle other extensions such as python py, bash scripts, etc.
-    if( file.endsWith('.js') == true ) {
-      log.info('readiness found file with .js extension: %s', file);
-      var sRequireFileName = file.substring( 0, file.indexOf( ".js" ) );
-      var sRequireFile = "./plugins/"+sRequireFileName;
-      var plugin = require( sRequireFile );
-      plugin.runPlugin(log,handlePluginResultsCallback);
-      log.info('readiness obtained plugin name: %s',plugin.name);
-    } else {
-      log.info('readiness found file without .js extension, not treating as a plugin: %s', file);
-    };
-  });
-});
+// loads and runs the Node.js plugins in the plugins folder
+function loadAndRunPlugins() {
+   // load and start the plugins
+   fs.readdir(sFolderNamePlugins, (err, files) => {
+     files.forEach(file => {
+       log.info('readiness found file within plugin folder: %s', file);
+       // TODO: this should handle other extensions such as python py, bash scripts, etc.
+       if( file.endsWith('.js') == true ) {
+         log.info('readiness found file with .js extension: %s', file);
+         var sRequireFileName = file.substring( 0, file.indexOf( ".js" ) );
+         var sRequireFile = "./plugins/"+sRequireFileName;
+         var plugin = require( sRequireFile );
+         plugin.runPlugin(log,handlePluginResultsCallback);
+         log.info('readiness obtained plugin name: %s',plugin.name);
+       } else {
+         log.info('readiness found file without .js extension, not treating as a plugin: %s', file);
+       };
+     });
+   });
+};
+
+// the self-calling loop for the plugins
+function runPluginLoop() {
+   // load and run the plugins
+   loadAndRunPlugins();
+
+   // call ourselves to run the plugins after a delay
+   setTimeout(runPluginLoop,iTimeInSecondsPluginLoop);
+};
+
+// start running the plugins
+runPluginLoop();
+
 
 
