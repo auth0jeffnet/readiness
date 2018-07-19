@@ -1,16 +1,40 @@
 
+diskusage = require('diskusage');
+
+path = '/dev/sda/'
+path = '/'
+
 module.exports = {
 
    frequency_in_seconds: 60,
    version: "20180718r001",
-   name: "Test Plugin 1 at 60 seconds",
-   summary: "Performs a test every 60 seconds",
-   description: "Performs a TODO SOME KIND OF TEST test every 60 seconds (once per minute)",
+   name: "disk_check_slash",
+   summary: "Checks the disk space of / (slash)",
+   description: "Checks the disk space of / (slash) using the diskusage.checkSync() method",
 
    runPlugin: function(log,fxResultsCallback) {
-      sReturnData = '{"name": "' + this.name + '"}';
+      sReturnData = this.doPluginDetails(log);
       fxResultsCallback(log,sReturnData);
-   }
+   },
 
+   doPluginDetails: function(log) {
+      sData = '{';
+
+      sData += '"name"';
+      sData += ': ';
+      sData += '"';
+      sData += this.name;
+      sData += '"';
+
+      sData += ',';
+
+      sData += '"results"';
+      sData += ': ';
+      sData += JSON.stringify( diskusage.checkSync(path) );
+
+      sData += '}';
+
+      return sData;
+   }
 };
 
