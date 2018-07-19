@@ -7,8 +7,8 @@ After=network-online.target
 
 [Service]
 # TODO: determine if nobody or ubuntu should be the user/group
-User=ubuntu
-Group=ubuntu
+# User=ubuntu
+# Group=ubuntu
 
 # set environment variables
 # Environment=PATH=/usr/bin:/usr/local/bin
@@ -18,8 +18,7 @@ WorkingDirectory=/opt/auth0/readiness/appcode/
 
 ExecStart=/usr/bin/node /opt/auth0/readiness/appcode/readiness.js
 
-Restart=on-failure
-# Restart=always
+Restart=always
 
 
 [Install]
