@@ -119,6 +119,10 @@ if( checkExistenceDirectory(sFolderNamePlugins) == false ) {
   log.info('readiness found plugin folder: %s', sFolderNamePlugins);
 };
 
+function handlePluginResultsCallback(log,sResults) {
+   log.info( sResults );
+};
+
 fs.readdir(sFolderNamePlugins, (err, files) => {
   files.forEach(file => {
     log.info('readiness found file within plugin folder: %s', file);
@@ -128,8 +132,8 @@ fs.readdir(sFolderNamePlugins, (err, files) => {
       var sRequireFileName = file.substring( 0, file.indexOf( ".js" ) );
       var sRequireFile = "./plugins/"+sRequireFileName;
       var plugin = require( sRequireFile );
-      sPluginName = plugin.getPluginName();
-      log.info('readiness obtained plugin name: %s',sPluginName);
+      plugin.runPlugin(log,handlePluginResultsCallback);
+      log.info('readiness obtained plugin name: %s',plugin.name);
     } else {
       log.info('readiness found file without .js extension, not treating as a plugin: %s', file);
     };
