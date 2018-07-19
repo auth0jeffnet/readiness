@@ -102,6 +102,12 @@ function handlePluginResultsCallback(log,sResults) {
    // copy the original data object
    var oDataOriginal = JSON.parse(sReportData);
 
+   // remove the "readiness is not yet ready" from the details
+   // if it is still within the data
+   if("details" in oDataOriginal) {
+     delete oDataOriginal["details"];
+   };
+
    // update the results for this plugin name with the entire response
    // from the plugin
    oDataOriginal[ jsonContent.name ] = sResults;
