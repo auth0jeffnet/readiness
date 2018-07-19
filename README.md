@@ -51,7 +51,6 @@ signals can be issued directly to the process to perform various actions:
   scripts, etc. are not yet handled)
 * plugins must expose the required interfaces otherwise the service will crash:
   * name
-  * frequency_in_seconds
   * runPlugin()
 
 # Future Enhancements
