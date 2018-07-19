@@ -2,7 +2,6 @@
 var http = require('http');
 var bunyan = require('bunyan');
 var fs = require('fs');
-var redis = require('redis');
 
 ////////////////////////////////////////////////////////////////
 // configuration: TODO: should go into a configuration file
@@ -103,10 +102,6 @@ function checkExistenceDirectory(sDirectoryName) {
   return bReturnValue;
 };
 
-// create the redis client
-var client = redis.createClient(iPortRedis, sHostRedis);
-
-
 // determine if the plugins folder exists
 if( checkExistenceDirectory(sFolderNamePlugins) == false ) {
   log.info('readiness unable to find plugin folder: %s', sFolderNamePlugins);
@@ -120,7 +115,15 @@ if( checkExistenceDirectory(sFolderNamePlugins) == false ) {
 };
 
 function handlePluginResultsCallback(log,sResults) {
-   log.info( sResults );
+   // set a variable with the parsed JSON results
+   var jsonContent = JSON.parse(sResults);
+   // copy the original data object
+   var oDataOriginal = JSON.parse(sReportData);
+   // update the results for this plugin name with the entire response
+   oDataOriginal[ jsonContent.name ] = sResults;
+   // write a string of the updated object to the report variable
+   sReportData = JSON.stringify(oDataOriginal);
+   log.info('finished output response: %s',sReportData);
 };
 
 fs.readdir(sFolderNamePlugins, (err, files) => {
