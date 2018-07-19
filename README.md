@@ -7,9 +7,13 @@ checks for properties of the environment and system configuration. These checks 
 but are not limited to properties such as disk size, available memory and network
 connectivity.
 
-# npm requirements
+# npm requirements - core
 * http
 * bunyan
+
+# npm requirements - plugins
+* diskusage
+* os
 
 # Service Control
 ## systemd
