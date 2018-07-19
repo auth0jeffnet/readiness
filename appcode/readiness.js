@@ -2,7 +2,6 @@
 var http = require('http');
 var bunyan = require('bunyan');
 var fs = require('fs');
-var redis = require('redis');
 
 ////////////////////////////////////////////////////////////////
 // configuration: TODO: should go into a configuration file
@@ -12,12 +11,8 @@ iPortNumber = 54321;
 // the log file for the service
 sLogFileInfoLog = '/tmp/readiness-info.log'
 var sFolderNamePlugins = './plugins/';
-// whlie these are the default settings, they are specified here
-// to keep the code the same if there are other desired settings
-iPortRedis = 6379;
-sHostRedis = '127.0.0.1';
-iWaitTimeInMilliseconds = 3000;
 sReportData = '{"details":"readiness is not yet ready"}';
+iTimeInSecondsPluginLoop = 5000;
 
 // declare a bunyan logging instance
 var log = bunyan.createLogger({
@@ -53,7 +48,7 @@ log.info('readiness startup requested at epoch time: %d', iDtsStartupInSeconds);
 
 // register a callback to handle configuration reload properly
 process.on('SIGHUP', function () {
-  log.info('readiness server caught SIGHUP, reloading configuration');
+  log.info('readiness server caught SIGHUP, reloading configuration not yet implemented');
   // TODO: reload the configuration and then update the variables
 });
 
@@ -67,31 +62,15 @@ process.on('SIGTERM', function () {
   });
 });
 
-// create the server handler for the report
+// create the server handler for the report data
 var oServerReport = http.createServer(function (req, res) {
    res.writeHead(200, {'Content-Type': 'text/json'});
    res.end(sReportData);
 }).listen(iPortNumber);
 
-log.info('readiness server running at port %d', iPortNumber);
+log.info('readiness server running at port %d, checking for plugins', iPortNumber);
 
-// create the handler for the checks
-function handlerChecker() {
-   var iDtsNowInSeconds = determineTimeNowInSeconds();
-   var iElapsedTime = determineElapsedTimeInSeconds( iDtsNowInSeconds );
-   log.info('readiness server handlerChecker awake at epoch time %d after running for %d seconds', iDtsNowInSeconds, iElapsedTime);
-
-   // request a call to ourselves after a delay to start the check
-   // cycle again
-   setTimeout(handlerChecker, iWaitTimeInMilliseconds);
-};
-
-log.info('readiness server running loop for tests via plugins' );
-
-// checks for directory existence synchronously
-// synchronous operations are great for performing one-time file/directory
-// operations before returning a module. For example, bootstrapping a
-// configuration file
+// checks for directory existence
 function checkExistenceDirectory(sDirectoryName) {
   bReturnValue = false;
   try {
@@ -102,10 +81,6 @@ function checkExistenceDirectory(sDirectoryName) {
   };
   return bReturnValue;
 };
-
-// create the redis client
-var client = redis.createClient(iPortRedis, sHostRedis);
-
 
 // determine if the plugins folder exists
 if( checkExistenceDirectory(sFolderNamePlugins) == false ) {
@@ -119,27 +94,63 @@ if( checkExistenceDirectory(sFolderNamePlugins) == false ) {
   log.info('readiness found plugin folder: %s', sFolderNamePlugins);
 };
 
-fs.readdir(sFolderNamePlugins, (err, files) => {
-  files.forEach(file => {
-    log.info('readiness found file within plugin folder: %s', file);
-    // TODO: this should handle other extensions such as python py, bash scripts, etc.
-    if( file.endsWith('.js') == true ) {
-      log.info('readiness found file with .js extension: %s', file);
-      var sRequireFileName = file.substring( 0, file.indexOf( ".js" ) );
-      var sRequireFile = "./plugins/"+sRequireFileName;
-      var plugin = require( sRequireFile );
-      sPluginName = plugin.getPluginName();
-      log.info('readiness obtained plugin name: %s',sPluginName);
-    } else {
-      log.info('readiness found file without .js extension, not treating as a plugin: %s', file);
-    };
-  });
-});
+// the handler for obtaining results from the plugins
+function handlePluginResultsCallback(log,sResults) {
+   // set a variable with the parsed JSON results
+   var jsonContent = JSON.parse(sResults);
 
-// perform the application loop
-// To start the checker instantly, call it directly: handlerChecker();
-// To start the checker after its normal delay, call it via a timeout: setTimeout(handlerChecker, iWaitTimeInMilliseconds);
-// setTimeout(handlerChecker, iWaitTimeInMilliseconds);
-handlerChecker();
+   // copy the original data object
+   var oDataOriginal = JSON.parse(sReportData);
+
+   // remove the "readiness is not yet ready" from the details
+   // if it is still within the data
+   if("details" in oDataOriginal) {
+     delete oDataOriginal["details"];
+   };
+
+   // update the results for this plugin name with the entire response
+   // from the plugin
+   oDataOriginal[ jsonContent.name ] = sResults;
+
+   // write a string of the updated object to the report variable
+   sReportData = JSON.stringify(oDataOriginal);
+
+   // log the response
+   log.debug('updated report data: %s',sReportData);
+};
+
+// loads and runs the Node.js plugins in the plugins folder
+function loadAndRunPlugins() {
+   // load and start the plugins
+   fs.readdir(sFolderNamePlugins, (err, files) => {
+     files.forEach(file => {
+       log.info('readiness found file within plugin folder: %s', file);
+       // TODO: this should handle other extensions such as python py, bash scripts, etc.
+       if( file.endsWith('.js') == true ) {
+         log.info('readiness found file with .js extension: %s', file);
+         var sRequireFileName = file.substring( 0, file.indexOf( ".js" ) );
+         var sRequireFile = "./plugins/"+sRequireFileName;
+         var plugin = require( sRequireFile );
+         plugin.runPlugin(log,handlePluginResultsCallback);
+         log.info('readiness obtained plugin name: %s',plugin.name);
+       } else {
+         log.info('readiness found file without .js extension, not treating as a plugin: %s', file);
+       };
+     });
+   });
+};
+
+// the self-calling loop for the plugins
+function runPluginLoop() {
+   // load and run the plugins
+   loadAndRunPlugins();
+
+   // call ourselves to run the plugins after a delay
+   setTimeout(runPluginLoop,iTimeInSecondsPluginLoop);
+};
+
+// start running the plugins
+runPluginLoop();
+
 
 
