@@ -11,11 +11,6 @@ iPortNumber = 54321;
 // the log file for the service
 sLogFileInfoLog = '/tmp/readiness-info.log'
 var sFolderNamePlugins = './plugins/';
-// whlie these are the default settings, they are specified here
-// to keep the code the same if there are other desired settings
-iPortRedis = 6379;
-sHostRedis = '127.0.0.1';
-iWaitTimeInMilliseconds = 3000;
 sReportData = '{"details":"readiness is not yet ready"}';
 
 // declare a bunyan logging instance
@@ -52,7 +47,7 @@ log.info('readiness startup requested at epoch time: %d', iDtsStartupInSeconds);
 
 // register a callback to handle configuration reload properly
 process.on('SIGHUP', function () {
-  log.info('readiness server caught SIGHUP, reloading configuration');
+  log.info('readiness server caught SIGHUP, reloading configuration not yet implemented');
   // TODO: reload the configuration and then update the variables
 });
 
@@ -66,31 +61,15 @@ process.on('SIGTERM', function () {
   });
 });
 
-// create the server handler for the report
+// create the server handler for the report data
 var oServerReport = http.createServer(function (req, res) {
    res.writeHead(200, {'Content-Type': 'text/json'});
    res.end(sReportData);
 }).listen(iPortNumber);
 
-log.info('readiness server running at port %d', iPortNumber);
+log.info('readiness server running at port %d, checking for plugins', iPortNumber);
 
-// create the handler for the checks
-function handlerChecker() {
-   var iDtsNowInSeconds = determineTimeNowInSeconds();
-   var iElapsedTime = determineElapsedTimeInSeconds( iDtsNowInSeconds );
-   log.info('readiness server handlerChecker awake at epoch time %d after running for %d seconds', iDtsNowInSeconds, iElapsedTime);
-
-   // request a call to ourselves after a delay to start the check
-   // cycle again
-   setTimeout(handlerChecker, iWaitTimeInMilliseconds);
-};
-
-log.info('readiness server running loop for tests via plugins' );
-
-// checks for directory existence synchronously
-// synchronous operations are great for performing one-time file/directory
-// operations before returning a module. For example, bootstrapping a
-// configuration file
+// checks for directory existence
 function checkExistenceDirectory(sDirectoryName) {
   bReturnValue = false;
   try {
@@ -114,18 +93,26 @@ if( checkExistenceDirectory(sFolderNamePlugins) == false ) {
   log.info('readiness found plugin folder: %s', sFolderNamePlugins);
 };
 
+// the handler for obtaining results from the plugins
 function handlePluginResultsCallback(log,sResults) {
    // set a variable with the parsed JSON results
    var jsonContent = JSON.parse(sResults);
+
    // copy the original data object
    var oDataOriginal = JSON.parse(sReportData);
+
    // update the results for this plugin name with the entire response
+   // from the plugin
    oDataOriginal[ jsonContent.name ] = sResults;
+
    // write a string of the updated object to the report variable
    sReportData = JSON.stringify(oDataOriginal);
-   log.info('finished output response: %s',sReportData);
+
+   // log the response
+   log.debug('updated report data: %s',sReportData);
 };
 
+// load and start the plugins
 fs.readdir(sFolderNamePlugins, (err, files) => {
   files.forEach(file => {
     log.info('readiness found file within plugin folder: %s', file);
@@ -142,11 +129,5 @@ fs.readdir(sFolderNamePlugins, (err, files) => {
     };
   });
 });
-
-// perform the application loop
-// To start the checker instantly, call it directly: handlerChecker();
-// To start the checker after its normal delay, call it via a timeout: setTimeout(handlerChecker, iWaitTimeInMilliseconds);
-// setTimeout(handlerChecker, iWaitTimeInMilliseconds);
-handlerChecker();
 
 
