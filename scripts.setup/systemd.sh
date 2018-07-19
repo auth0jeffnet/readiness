@@ -1,9 +1,14 @@
-#!/bin/sh
+#!/bin/bash
 
-echo TODO: checking for auth0 readiness.service
+echo checking for auth0 readiness.service
 
 # check that the user is root (via sudo ideally) since systemctl
 # requires escalated priviliges 
+if [[ $EUID -ne 0 ]] ; then
+   echo "This script must be run as root"
+   # exit 1
+fi
+
 # 
 # check for the systemd configuration in /etc/auth0/readiness.service
 # and if it already exists, these steps should not be performed since
