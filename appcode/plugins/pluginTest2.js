@@ -8,6 +8,7 @@ module.exports = {
    name: "cpu_check",
    summary: "Checks the CPU details",
    description: "Checks the CPU details using the os.cpus() method",
+   helplink: "https://auth0.com/docs/appliance/infrastructure/virtual-machines",
 
    runPlugin: function(log,fxResultsCallback) {
       sReturnData = this.doPluginDetails(log);
@@ -21,6 +22,14 @@ module.exports = {
       sData += ': ';
       sData += '"';
       sData += this.name;
+      sData += '"';
+
+      sData += ',';
+
+      sData += '"helplink"';
+      sData += ': ';
+      sData += '"';
+      sData += this.helplink;
       sData += '"';
 
       sData += ',';
