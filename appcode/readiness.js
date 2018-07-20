@@ -3,16 +3,16 @@ var http = require('http');
 var bunyan = require('bunyan');
 var fs = require('fs');
 
-////////////////////////////////////////////////////////////////
-// configuration: TODO: should go into a configuration file
-////////////////////////////////////////////////////////////////
 // the port number for the report
 iPortNumber = 54321;
+// the fodler for the plugins
+var sFolderNamePlugins = '/opt/auth0/readiness/appcode/plugins/';
 // the log file for the service
 sLogFileInfoLog = '/tmp/readiness-info.log'
-var sFolderNamePlugins = '/opt/auth0/readiness/appcode/plugins/';
+// the "sleep" time between polling intervals
+iTimeInMillisecondsPluginLoop = 60000;
+// the initial report data
 sReportData = '{"details":"readiness is not yet ready"}';
-iTimeInSecondsPluginLoop = 5000;
 
 // declare a bunyan logging instance
 var log = bunyan.createLogger({
@@ -50,6 +50,8 @@ log.info('readiness startup requested at epoch time: %d', iDtsStartupInSeconds);
 process.on('SIGHUP', function () {
   log.info('readiness server caught SIGHUP, reloading configuration not yet implemented');
   // TODO: reload the configuration and then update the variables
+  // TODO: for reloading the "require"d plugin files, this methodology of removing
+  // the resolve configuration may prove useful: https://github.com/lorenwest/node-config/issues/34
 });
 
 // register a callback to handle shutdown properly
@@ -146,7 +148,7 @@ function runPluginLoop() {
    loadAndRunPlugins();
 
    // call ourselves to run the plugins after a delay
-   setTimeout(runPluginLoop,iTimeInSecondsPluginLoop);
+   setTimeout(runPluginLoop,iTimeInMillisecondsPluginLoop);
 };
 
 // start running the plugins
