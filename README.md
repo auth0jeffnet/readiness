@@ -38,9 +38,10 @@ signals can be issued directly to the process to perform various actions:
 * **report port (iPortNumber)**: the HTTP port for exposing the readiness results
 * **plugin folder (sFolderNamePlugins)**: the absolute folder that contains the plugins
 * **bunyan log file (sLogFileInfoLog)**: the log file for the bunyan log
-* **iTimeInSecondsPluginLoop**: the "sleep" time between polling intervals in milliseconds
+* **loop delay time (iTimeInSecondsPluginLoop)**: the "sleep" time between polling intervals in milliseconds
 
 # Plugins
+A plugin architecture is used to extend the functionalty of the readiness checks.
 
 ## Plugin definition
 To extend the readiness service with a Node.js plugin, these attributes and functions
@@ -78,7 +79,7 @@ The plugin should provide a JSON response containing at least these attributes:
   this module, call the check with a URL and then return the results
   without requiring the user to create or copy code to perform a
   TCP connectivity check)
-* **SIGHUP** catch the SIGHUP signal to reload the configuration for the service/daemon
+* **SIGHUP signal ** catch the SIGHUP signal to reload the configuration for the service/daemon
   and the plugins (since Node.js caches any "require"d file(s), any updates would appear
   to be running "old code" until the SIGHUP signal triggers clearing and reloading these,
   see https://github.com/lorenwest/node-config/issues/34 for more details)
