@@ -31,8 +31,8 @@ signals can be issued directly to the process to perform various actions:
 # Configuration
 
 ## systemd
-**WorkingDirectory**: the directory/folder where readiness.js resides
-**ExecStart**: the full path of the Node.js executable and the readiness.js file
+* **WorkingDirectory**: the directory/folder where readiness.js resides
+* **ExecStart**: the full path of the Node.js executable and the readiness.js file
 
 ## readiness.js
 * **report port (iPortNumber)**: the HTTP port for exposing the readiness results
