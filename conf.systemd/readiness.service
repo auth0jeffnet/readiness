@@ -6,7 +6,6 @@ After=network-online.target
 
 
 [Service]
-# TODO: determine if nobody or ubuntu should be the user/group
 # User=ubuntu
 # Group=ubuntu
 
