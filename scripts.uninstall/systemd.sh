@@ -1,10 +1,15 @@
-#!/bin/sh
+#!/bin/bash
 
 echo disabling auth0 readiness.service
 
 # check that the user is root (via sudo ideally) since systemctl
 # requires escalated priviliges 
-# 
+if [[ $EUID -ne 0 ]] ; then
+   echo "This script must be run as root"
+   # exit 1
+fi
+
+
 # check for the systemd configuration in /etc/auth0/readiness.service
 # and if it does not exist, these steps should not be performed since
 # they have likely already been performed
@@ -21,6 +26,4 @@ systemctl stop readiness
 
 # disable the service
 systemctl disable readiness
-
-# TODO: should this remove the files from the installation location?
 

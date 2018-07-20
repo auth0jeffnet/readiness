@@ -10,10 +10,13 @@ connectivity.
 # npm requirements - core
 * http
 * bunyan
+* fs
 
 # npm requirements - plugins
-* diskusage
-* os
+* diskusage (disk_check_slash.js)
+* os (cpu_check.js)
+* fs (mem_check_proc_meminfo.js)
+* child_process (curl_check_updates_http.js)
 
 # Service Control
 ## systemd
@@ -23,28 +26,37 @@ the systemd interface (i.e. `systemctl start readiness` to start the service).
 ## Signals
 While systemd should be used to control the service under normal circumstances,
 signals can be issued directly to the process to perform various actions:
-* **SIGHUP** reloads the configuration for the service/daemon
 * **SIGTERM** terminates the service/daemon gracefully
 
 # Configuration
 
 ## systemd
-* user
-* group
-* installation location (where readiness.js and readiness.conf reside)
-* log folder ?TODO: OR should this be in readiness.conf?
+**WorkingDirectory**: the directory/folder where readiness.js resides
+**ExecStart**: the full path of the Node.js executable and the readiness.js file
 
-## readiness.conf
-* number of simultaneous tests/checks
-* logging
-* report port
-* plugin folder
+## readiness.js
+* **report port (iPortNumber)**: the HTTP port for exposing the readiness results
+* **plugin folder (sFolderNamePlugins)**: the absolute folder that contains the plugins
+* **bunyan log file (sLogFileInfoLog)**: the log file for the bunyan log
+* **loop delay time (iTimeInSecondsPluginLoop)**: the "sleep" time between polling intervals in milliseconds
 
 # Plugins
+A plugin architecture is used to extend the functionalty of the readiness checks.
 
 ## Plugin definition
-* TODO: create pluginTempl.txt within the plugins folder to be used as a model
-  for creating a new plugin
+To extend the readiness service with a Node.js plugin, these attributes and functions
+should be exposed/exported by the plugin:
+* **name**: this is the name associated to the key for the result data and should be unique
+  for each plugin and associated result set
+* **runPlugin(log,callback)**: this is the method readiness.js calls to request the
+  check from a plugin
+
+The plugin should provide a JSON response containing at least these attributes:
+* **name**: this is the name associated to the key for the result data and should be unique
+  for each plugin and associated result set
+* **results**: the response of the check. This can be any format that can be embedded within
+  the JSON value (such as text for /proc/meminfo, a buffer for wget, strings, etc.) since
+  interpretation of these results will be handled differently depending upon their acquisition method
 
 # Known Issues
 * only Node.js plugins with a .js extension are handled (i.e. python files, bash
@@ -67,4 +79,8 @@ signals can be issued directly to the process to perform various actions:
   this module, call the check with a URL and then return the results
   without requiring the user to create or copy code to perform a
   TCP connectivity check)
+* **SIGHUP signal ** catch the SIGHUP signal to reload the configuration for the service/daemon
+  and the plugins (since Node.js caches any "require"d file(s), any updates would appear
+  to be running "old code" until the SIGHUP signal triggers clearing and reloading these,
+  see https://github.com/lorenwest/node-config/issues/34 for more details)
 
