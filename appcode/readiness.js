@@ -10,7 +10,7 @@ var fs = require('fs');
 iPortNumber = 54321;
 // the log file for the service
 sLogFileInfoLog = '/tmp/readiness-info.log'
-var sFolderNamePlugins = './plugins/';
+var sFolderNamePlugins = '/opt/auth0/readiness/appcode/plugins/';
 sReportData = '{"details":"readiness is not yet ready"}';
 iTimeInSecondsPluginLoop = 5000;
 
