@@ -1,16 +1,13 @@
 
 [Unit]
 Description=Readiness checks for auth0 PSaaS environments
-# TODO: determine which stage is appropriate
-# After=network.target
-# After=network-online.target
+After=network-online.target
 # Wants=TODO
 
 
 [Service]
 # TODO: determine if nobody or ubuntu should be the user/group
-# User=nobody
-User=ubuntu
+# User=ubuntu
 # Group=ubuntu
 
 # set environment variables
@@ -19,10 +16,9 @@ User=ubuntu
 # do chdir before running the service
 WorkingDirectory=/opt/auth0/readiness/appcode/
 
-ExecStart=/usr/bin/node readiness.js
+ExecStart=/usr/bin/node /opt/auth0/readiness/appcode/readiness.js
 
-Restart=on-failure
-# Restart=always
+Restart=always
 
 
 [Install]
