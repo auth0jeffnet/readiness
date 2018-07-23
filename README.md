@@ -79,7 +79,7 @@ The plugin should provide a JSON response containing at least these attributes:
   this module, call the check with a URL and then return the results
   without requiring the user to create or copy code to perform a
   TCP connectivity check)
-* **SIGHUP signal ** catch the SIGHUP signal to reload the configuration for the service/daemon
+* **SIGHUP signal**: catch the SIGHUP signal to reload the configuration for the service/daemon
   and the plugins (since Node.js caches any "require"d file(s), any updates would appear
   to be running "old code" until the SIGHUP signal triggers clearing and reloading these,
   see https://github.com/lorenwest/node-config/issues/34 for more details)
