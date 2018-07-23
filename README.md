@@ -54,9 +54,10 @@ should be exposed/exported by the plugin:
 The plugin should provide a JSON response containing at least these attributes:
 * **name**: this is the name associated to the key for the result data and should be unique
   for each plugin and associated result set
-* **results**: the response of the check. This can be any format that can be embedded within
-  the JSON value (such as text for /proc/meminfo, a buffer for wget, strings, etc.) since
-  interpretation of these results will be handled differently depending upon their acquisition method
+* **results**: a string that contains the response of the check. This can be any format that
+  can be embedded within the JSON string value (such as text for /proc/meminfo, a buffer for
+  wget, strings, etc.) since interpretation of these results will be handled differently
+  for each different type of response
 
 # Known Issues
 * only Node.js plugins with a .js extension are handled (i.e. python files, bash
@@ -81,6 +82,9 @@ The plugin should provide a JSON response containing at least these attributes:
   this module, call the check with a URL and then return the results
   without requiring the user to create or copy code to perform a
   TCP connectivity check)
+* **multiple frequencies**: handle the frequency_in_seconds attribute to determine
+  if the plugin should be performed only once or if a timer should be configured
+  based on the plugin setting
 * **SIGHUP signal**: catch the SIGHUP signal to reload the configuration for the service/daemon
   and the plugins (since Node.js caches any "require"d file(s), any updates would appear
   to be running "old code" until the SIGHUP signal triggers clearing and reloading these,
