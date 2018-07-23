@@ -35,8 +35,8 @@ signals can be issued directly to the process to perform various actions:
 * **ExecStart**: the full path of the Node.js executable and the readiness.js file
 
 ## readiness.js
-* **report port (iPortNumber)**: the HTTP port for exposing the readiness results
-* **plugin folder (sFolderNamePlugins)**: the absolute folder that contains the plugins
+* **report port (portNumber)**: the HTTP port for exposing the readiness results
+* **plugin folder (nameFolderPlugins)**: the absolute folder that contains the plugins
 * **bunyan log file (sLogFileInfoLog)**: the log file for the bunyan log
 * **loop delay time (iTimeInSecondsPluginLoop)**: the "sleep" time between polling intervals in milliseconds
 
