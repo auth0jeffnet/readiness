@@ -19,31 +19,13 @@ module.exports = {
    },
 
    doPluginDetails: function(log) {
-      sData = '{';
+      var returnData = {
+        name: this.name,
+        helplink: this.helplink,
+        results: JSON.stringify( diskusage.checkSync(path) )
+      };
 
-      sData += '"name"';
-      sData += ': ';
-      sData += '"';
-      sData += this.name;
-      sData += '"';
-
-      sData += ',';
-
-      sData += '"helplink"';
-      sData += ': ';
-      sData += '"';
-      sData += this.helplink;
-      sData += '"';
-
-      sData += ',';
-
-      sData += '"results"';
-      sData += ': ';
-      sData += JSON.stringify( diskusage.checkSync(path) );
-
-      sData += '}';
-
-      return sData;
+      return JSON.stringify( returnData );
    }
 };
 
