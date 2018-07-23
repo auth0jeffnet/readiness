@@ -12,7 +12,7 @@ sLogFileInfoLog = '/tmp/readiness-info.log'
 // the "sleep" time between polling intervals
 iTimeInMillisecondsPluginLoop = 60000;
 // the initial report data
-sReportData = '{"details":"readiness is not yet ready"}';
+sReportData = '{"readiness":"readiness is not yet ready"}';
 
 // declare a bunyan logging instance
 var log = bunyan.createLogger({
@@ -43,10 +43,19 @@ function determineElapsedTimeInSeconds( iStartTimeInSeconds ) {
   return iElapsedTime;
 };
 
-var iDtsStartupInSeconds = determineTimeNowInSeconds();
-log.info('readiness startup requested at epoch time: %d', iDtsStartupInSeconds);
+// checks for directory existence
+function checkExistenceDirectory(sDirectoryName) {
+  bReturnValue = false;
+  try {
+    fs.statSync(sDirectoryName);
+    bReturnValue = true;
+  } catch(eEx) {
+    log.info('detected directory does not exist: %s', sDirectoryName);
+  };
+  return bReturnValue;
+};
 
-function closeReport() {
+function closeReportHandler() {
   var iDtsNowInSeconds = determineTimeNowInSeconds();
   var iElapsedTime = determineElapsedTimeInSeconds( iDtsNowInSeconds );
   log.info('readiness server caught SIGTERM, shutdown requested at epoch time %d after running for %d seconds', iDtsNowInSeconds, iElapsedTime);
@@ -61,45 +70,15 @@ function catchSigHup() {
 };
 
 function catchSigTerm() {
-  oServerReport.close(closeReport);
+  oServerReport.close(closeReportHandler);
 };
 
-// register a callback to handle shutdown properly
-process.on('SIGTERM', catchSigTerm);
+function registerSignalHandlers() {
+  // register a callback to handle shutdown properly
+  process.on('SIGTERM', catchSigTerm);
 
-// register a callback to handle configuration reload properly
-process.on('SIGHUP', catchSigHup);
-
-// create the server handler for the report data
-var oServerReport = http.createServer(function (req, res) {
-  res.writeHead(200, {'Content-Type': 'text/json'});
-  res.end(sReportData);
-}).listen(portNumber);
-
-log.info('readiness server running at port %d, checking for plugins', portNumber);
-
-// checks for directory existence
-function checkExistenceDirectory(sDirectoryName) {
-  bReturnValue = false;
-  try {
-    fs.statSync(sDirectoryName);
-    bReturnValue = true;
-  } catch(eEx) {
-    log.info('detected directory does not exist: %s', sDirectoryName);
-  };
-  return bReturnValue;
-};
-
-// determine if the plugins folder exists
-if( checkExistenceDirectory(nameFolderPlugins) == false ) {
-  log.info('readiness unable to find plugin folder: %s', nameFolderPlugins);
-  // while this directory could be created using the code
-  // fs.mkdirSync(sDirectoryName);
-  // this is probably the least-expected action since the
-  // user would likely have specified a plugin folder they
-  // expected to exist
-} else {
-  log.info('readiness found plugin folder: %s', nameFolderPlugins);
+  // register a callback to handle configuration reload properly
+  process.on('SIGHUP', catchSigHup);
 };
 
 // the handler for obtaining results from the plugins
@@ -110,10 +89,10 @@ function handlePluginResultsCallback(log,sResults) {
   // copy the original data object
   var oDataOriginal = JSON.parse(sReportData);
 
-  // remove the "readiness is not yet ready" from the details
-  // if it is still within the data
-  if("details" in oDataOriginal) {
-    delete oDataOriginal["details"];
+  // remove the "readiness is not yet ready" associated with the readiness
+  // key if it is still within the data
+  if("readiness" in oDataOriginal) {
+    delete oDataOriginal["readiness"];
   };
 
   // update the results for this plugin name with the entire response
@@ -156,6 +135,32 @@ function runPluginLoop() {
   // call ourselves to run the plugins after a delay
   setTimeout(runPluginLoop,iTimeInMillisecondsPluginLoop);
 };
+
+var iDtsStartupInSeconds = determineTimeNowInSeconds();
+log.info('readiness startup requested at epoch time: %d', iDtsStartupInSeconds);
+
+// determine if the plugins folder exists
+if( checkExistenceDirectory(nameFolderPlugins) == false ) {
+  log.error('readiness unable to find plugin folder: %s', nameFolderPlugins);
+  // while this directory could be created using the code
+  // fs.mkdirSync(sDirectoryName);
+  // this is probably the least-expected action since the
+  // user would likely have specified a plugin folder they
+  // expected to exist
+  return;
+};
+
+log.info('readiness found plugin folder: %s', nameFolderPlugins);
+
+registerSignalHandlers();
+
+// create the server handler for the report data
+var oServerReport = http.createServer(function (req, res) {
+  res.writeHead(200, {'Content-Type': 'text/json'});
+  res.end(sReportData);
+}).listen(portNumber);
+
+log.info('readiness server running at port %d, starting plugin loop', portNumber);
 
 // start running the plugins
 runPluginLoop();

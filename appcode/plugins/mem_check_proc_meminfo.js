@@ -8,24 +8,16 @@ module.exports = {
   summary: "Checks the system memory details",
   description: "Checks the system memory details using the output from /proc/meminfo",
   helplink: "https://auth0.com/docs/appliance/infrastructure/virtual-machines",
-  sLocalResults: "",
 
   runPlugin: function(log,fxResultsCallback) {
-    sReturnData = this.doPluginDetails(log,this.sLocalResults);
+    sReturnData = this.doPluginDetails(log);
     fxResultsCallback(log,sReturnData);
   },
 
-  doPluginDetails: function(log,sOutput) {
-    sProcInfo = fs.readFileSync('/proc/meminfo', 'utf8');
-
-    var returnData = {
-      name: this.name,
-      helplink: this.helplink,
-      results: JSON.stringify( sProcInfo )
-    };
-
-    return JSON.stringify( returnData );
+  doPluginDetails: function(log) {
+    this.data = fs.readFileSync('/proc/meminfo', 'utf8');
+    return JSON.stringify(this);
   }
-};
 
+};
 

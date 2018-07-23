@@ -1,8 +1,7 @@
 
-diskusage = require('diskusage');
+var diskusage = require('diskusage');
 
-path = '/dev/sda/'
-path = '/'
+var path = '/'
 
 module.exports = {
   frequency_in_seconds: 60,
@@ -18,13 +17,9 @@ module.exports = {
   },
 
   doPluginDetails: function(log) {
-    var returnData = {
-      name: this.name,
-      helplink: this.helplink,
-      results: JSON.stringify( diskusage.checkSync(path) )
-    };
-
-    return JSON.stringify( returnData );
+    this.data = diskusage.checkSync(path);
+    return JSON.stringify(this);
   }
+
 };
 

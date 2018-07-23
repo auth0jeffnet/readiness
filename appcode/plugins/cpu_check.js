@@ -1,5 +1,5 @@
 
-os = require('os');
+var os = require('os');
 
 module.exports = {
   frequency_in_seconds: 30,
@@ -15,13 +15,8 @@ module.exports = {
   },
 
   doPluginDetails: function(log) {
-    var returnData = {
-      name: this.name,
-      helplink: this.helplink,
-      results: JSON.stringify( os.cpus() )
-    };
-
-    return JSON.stringify( returnData );
+    this.data = os.cpus();
+    return JSON.stringify(this);
   }
 
 };
