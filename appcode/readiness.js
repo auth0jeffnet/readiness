@@ -21,7 +21,6 @@ var log = bunyan.createLogger({
   streams: [
     {
       level: 'info',
-      stream: process.stdout,
       path: nameFileLogInfo
     },
     {
