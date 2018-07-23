@@ -21,6 +21,7 @@ var log = bunyan.createLogger({
   streams: [
     {
       level: 'info',
+      stream: process.stdout,
       path: nameFileLogInfo
     },
     {
@@ -48,6 +49,7 @@ function checkExistenceDirectory(sDirectoryName) {
   bReturnValue = false;
   try {
     fs.statSync(sDirectoryName);
+    log.info('detected directory exists: %s', sDirectoryName);
     bReturnValue = true;
   } catch(eEx) {
     log.info('detected directory does not exist: %s', sDirectoryName);
@@ -82,7 +84,7 @@ function registerSignalHandlers() {
 };
 
 // the handler for obtaining results from the plugins
-function handlePluginResultsCallback(log,sResults) {
+function handlePluginResultsCallback(sResults) {
   // set a variable with the parsed JSON results
   var jsonContent = JSON.parse(sResults);
 
@@ -95,9 +97,16 @@ function handlePluginResultsCallback(log,sResults) {
     delete oDataOriginal["readiness"];
   };
 
-  // update the results for this plugin name with the entire response
-  // from the plugin
-  oDataOriginal[ jsonContent.name ] = sResults;
+  if(jsonContent.hasOwnProperty('name')){
+    // update the results for this plugin name with the entire response
+    // from the plugin
+    var keyNameWithinResults = jsonContent.name;
+    oDataOriginal[ keyNameWithinResults ] = sResults;
+  }
+  else {
+    log.info('name not found within response, not updating report data: %s',jsonContent);
+    return;
+  };
 
   // write a string of the updated object to the report variable
   sReportData = JSON.stringify(oDataOriginal);
@@ -111,16 +120,27 @@ function loadAndRunPlugins() {
   // load and start the plugins
   fs.readdir(nameFolderPlugins, (err, files) => {
     files.forEach(file => {
-      log.info('readiness found file within plugin folder: %s', file);
+      log.debug('readiness found file within plugin folder: %s', file);
       // TODO: this should handle other extensions such as python py, bash scripts, etc.
       if( file.endsWith('.js') == true ) {
-        log.info('readiness found file with .js extension: %s', file);
+        log.debug('readiness found file with .js extension: %s', file);
         var sRequireFileName = file.substring( 0, file.indexOf( ".js" ) );
         var sRequireFile = './plugins/'+sRequireFileName;
         var plugin = require( sRequireFile );
-        plugin.runPlugin(log,handlePluginResultsCallback);
-        log.info('readiness obtained plugin name: %s',plugin.name);
-      } else {
+        if(plugin.name !== undefined) {
+          if(plugin.runPlugin !== undefined) {
+            log.info('readiness found plugin: %s', file);
+            plugin.runPlugin(log,handlePluginResultsCallback);
+          }
+          else {
+            log.info('readiness found file without .runPlugin function, not treating as a plugin: %s', file);
+          };
+        }
+        else {
+          log.info('readiness found file without .name attribute, not treating as a plugin: %s', file);
+        };
+      }
+      else {
         log.info('readiness found file without .js extension, not treating as a plugin: %s', file);
       };
     });

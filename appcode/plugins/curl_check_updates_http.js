@@ -14,7 +14,7 @@ module.exports = {
   runPlugin: function(log,fxResultsCallback) {
     sPluginData = this.getData(log);
     sReturnData = this.renderPluginData(log,sPluginData);
-    fxResultsCallback(log,sReturnData);
+    fxResultsCallback(sReturnData);
   },
 
   getData: function(log) {

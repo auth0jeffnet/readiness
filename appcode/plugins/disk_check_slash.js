@@ -13,7 +13,7 @@ module.exports = {
 
   runPlugin: function(log,fxResultsCallback) {
     sReturnData = this.doPluginDetails(log);
-    fxResultsCallback(log,sReturnData);
+    fxResultsCallback(sReturnData);
   },
 
   doPluginDetails: function(log) {
