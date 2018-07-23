@@ -8,7 +8,7 @@ portNumber = 54321;
 // the fodler for the plugins
 var nameFolderPlugins = '/opt/auth0/readiness/appcode/plugins/';
 // the log file for the service
-sLogFileInfoLog = '/tmp/readiness-info.log'
+nameFileLogInfo = '/tmp/readiness-info.log'
 // the "sleep" time between polling intervals
 iTimeInMillisecondsPluginLoop = 60000;
 // the initial report data
@@ -21,7 +21,7 @@ var log = bunyan.createLogger({
   streams: [
     {
       level: 'info',
-      path: sLogFileInfoLog
+      path: nameFileLogInfo
     },
     {
       level: 'error',

@@ -37,7 +37,7 @@ signals can be issued directly to the process to perform various actions:
 ## readiness.js
 * **report port (portNumber)**: the HTTP port for exposing the readiness results
 * **plugin folder (nameFolderPlugins)**: the absolute folder that contains the plugins
-* **bunyan log file (sLogFileInfoLog)**: the log file for the bunyan log
+* **bunyan log file (nameFileLogInfo)**: the log file for the bunyan log
 * **loop delay time (iTimeInSecondsPluginLoop)**: the "sleep" time between polling intervals in milliseconds
 
 # Plugins
