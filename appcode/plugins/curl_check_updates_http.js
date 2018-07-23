@@ -1,7 +1,7 @@
 
 var child_process = require('child_process');
 
-sCurlRequest = '/usr/bin/curl --max-time 10 --stderr - http://apt-mirror.it.auth0.com';
+var sCurlRequest = '/usr/bin/curl --max-time 10 --stderr - http://apt-mirror.it.auth0.com';
 
 module.exports = {
   frequency_in_seconds: 15,

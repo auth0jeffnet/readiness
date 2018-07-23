@@ -1,5 +1,5 @@
 
-os = require('os');
+var os = require('os');
 
 module.exports = {
   frequency_in_seconds: 30,

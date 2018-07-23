@@ -1,7 +1,7 @@
 
-diskusage = require('diskusage');
+var diskusage = require('diskusage');
 
-path = '/'
+var path = '/'
 
 module.exports = {
   frequency_in_seconds: 60,
