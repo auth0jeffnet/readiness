@@ -46,23 +46,29 @@ function determineElapsedTimeInSeconds( iStartTimeInSeconds ) {
 var iDtsStartupInSeconds = determineTimeNowInSeconds();
 log.info('readiness startup requested at epoch time: %d', iDtsStartupInSeconds);
 
-// register a callback to handle configuration reload properly
-process.on('SIGHUP', function () {
+function closeReport() {
+  var iDtsNowInSeconds = determineTimeNowInSeconds();
+  var iElapsedTime = determineElapsedTimeInSeconds( iDtsNowInSeconds );
+  log.info('readiness server caught SIGTERM, shutdown requested at epoch time %d after running for %d seconds', iDtsNowInSeconds, iElapsedTime);
+  process.exit(0);
+};
+
+function catchSigHup() {
   log.info('readiness server caught SIGHUP, reloading configuration not yet implemented');
   // TODO: reload the configuration and then update the variables
   // TODO: for reloading the "require"d plugin files, this methodology of removing
   // the resolve configuration may prove useful: https://github.com/lorenwest/node-config/issues/34
-});
+};
+
+function catchSigTerm() {
+  oServerReport.close(closeReport);
+};
 
 // register a callback to handle shutdown properly
-process.on('SIGTERM', function () {
-  oServerReport.close(function () {
-    var iDtsNowInSeconds = determineTimeNowInSeconds();
-    var iElapsedTime = determineElapsedTimeInSeconds( iDtsNowInSeconds );
-    log.info('readiness server caught SIGTERM, shutdown requested at epoch time %d after running for %d seconds', iDtsNowInSeconds, iElapsedTime);
-    process.exit(0);
-  });
-});
+process.on('SIGTERM', catchSigTerm);
+
+// register a callback to handle configuration reload properly
+process.on('SIGHUP', catchSigHup);
 
 // create the server handler for the report data
 var oServerReport = http.createServer(function (req, res) {
