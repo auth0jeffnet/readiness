@@ -1,0 +1,24 @@
+{
+  "name": "readiness",
+  "version": "1.0.0",
+  "description": "Performs a series of readiness checks for PSaaS environments",
+  "main": "readiness.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/auth0jeffnet/readiness.git"
+  },
+  "keywords": [
+    "auth0",
+    "PSaaS",
+    "readiness"
+  ],
+  "author": "Jeff Jeffries <auth0@jeffnet.net>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/auth0jeffnet/readiness/issues"
+  },
+  "homepage": "https://github.com/auth0jeffnet/readiness#readme"
+}
