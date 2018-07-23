@@ -125,7 +125,18 @@ function loadAndRunPlugins() {
         log.debug('readiness found file with .js extension: %s', file);
         var sRequireFileName = file.substring( 0, file.indexOf( ".js" ) );
         var sRequireFile = './plugins/'+sRequireFileName;
-        var plugin = require( sRequireFile );
+        try {
+          var plugin = require( sRequireFile );
+        }
+        catch(exceptionObject) {
+          log.info('readiness caught exception during attempt to require plugin, ignoring: %s', file);
+          // normally 'continue' is a really bad idea within loop management
+          // however in this case it is useful since this file/plugin should
+          // be ignored after causing an exception upon load
+          // NOTE: this return only "returns" back to the forEach() loop, and
+          // behaves like a 'continue' statement for C/C++ and other languages
+          return;
+        };
         if(plugin.name !== undefined) {
           if(plugin.runPlugin !== undefined) {
             log.info('readiness found plugin: %s', file);
