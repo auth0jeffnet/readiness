@@ -32,14 +32,9 @@ module.exports = {
   },
 
   renderPluginData: function(log,sPluginData) {
-    var returnData = {
-      name: this.name,
-      helplink: this.helplink,
-      results: JSON.stringify( sPluginData )
-    };
-
-    return JSON.stringify( returnData );
+    this.results = sPluginData;
+    return JSON.stringify(this);
   }
-};
 
+};
 

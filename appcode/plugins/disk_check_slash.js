@@ -1,7 +1,6 @@
 
 diskusage = require('diskusage');
 
-path = '/dev/sda/'
 path = '/'
 
 module.exports = {
@@ -18,13 +17,9 @@ module.exports = {
   },
 
   doPluginDetails: function(log) {
-    var returnData = {
-      name: this.name,
-      helplink: this.helplink,
-      results: JSON.stringify( diskusage.checkSync(path) )
-    };
-
-    return JSON.stringify( returnData );
+    this.data = diskusage.checkSync(path);
+    return JSON.stringify(this);
   }
+
 };
 
