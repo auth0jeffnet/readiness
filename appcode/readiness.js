@@ -6,7 +6,7 @@ var fs = require('fs');
 // the port number for the report
 iPortNumber = 54321;
 // the fodler for the plugins
-var sFolderNamePlugins = '/opt/auth0/readiness/appcode/plugins/';
+var nameFolderPlugins = '/opt/auth0/readiness/appcode/plugins/';
 // the log file for the service
 sLogFileInfoLog = '/tmp/readiness-info.log'
 // the "sleep" time between polling intervals
@@ -85,15 +85,15 @@ function checkExistenceDirectory(sDirectoryName) {
 };
 
 // determine if the plugins folder exists
-if( checkExistenceDirectory(sFolderNamePlugins) == false ) {
-  log.info('readiness unable to find plugin folder: %s', sFolderNamePlugins);
+if( checkExistenceDirectory(nameFolderPlugins) == false ) {
+  log.info('readiness unable to find plugin folder: %s', nameFolderPlugins);
   // while this directory could be created using the code
   // fs.mkdirSync(sDirectoryName);
   // this is probably the least-expected action since the
   // user would likely have specified a plugin folder they
   // expected to exist
 } else {
-  log.info('readiness found plugin folder: %s', sFolderNamePlugins);
+  log.info('readiness found plugin folder: %s', nameFolderPlugins);
 };
 
 // the handler for obtaining results from the plugins
@@ -124,7 +124,7 @@ function handlePluginResultsCallback(log,sResults) {
 // loads and runs the Node.js plugins in the plugins folder
 function loadAndRunPlugins() {
    // load and start the plugins
-   fs.readdir(sFolderNamePlugins, (err, files) => {
+   fs.readdir(nameFolderPlugins, (err, files) => {
      files.forEach(file => {
        log.info('readiness found file within plugin folder: %s', file);
        // TODO: this should handle other extensions such as python py, bash scripts, etc.
