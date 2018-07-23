@@ -131,7 +131,7 @@ function loadAndRunPlugins() {
        if( file.endsWith('.js') == true ) {
          log.info('readiness found file with .js extension: %s', file);
          var sRequireFileName = file.substring( 0, file.indexOf( ".js" ) );
-         var sRequireFile = "./plugins/"+sRequireFileName;
+         var sRequireFile = './plugins/'+sRequireFileName;
          var plugin = require( sRequireFile );
          plugin.runPlugin(log,handlePluginResultsCallback);
          log.info('readiness obtained plugin name: %s',plugin.name);
