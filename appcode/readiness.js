@@ -10,7 +10,7 @@ var nameFolderPlugins = '/opt/auth0/readiness/appcode/plugins/';
 // the log file for the service
 nameFileLogInfo = '/tmp/readiness-info.log'
 // the "sleep" time between polling intervals
-iTimeInMillisecondsPluginLoop = 60000;
+loopTimeMilliseconds = 60000;
 // the initial report data
 sReportData = '{"readiness":"readiness is not yet ready"}';
 
@@ -133,7 +133,7 @@ function runPluginLoop() {
   loadAndRunPlugins();
 
   // call ourselves to run the plugins after a delay
-  setTimeout(runPluginLoop,iTimeInMillisecondsPluginLoop);
+  setTimeout(runPluginLoop,loopTimeMilliseconds);
 };
 
 var iDtsStartupInSeconds = determineTimeNowInSeconds();
