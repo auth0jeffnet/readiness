@@ -16,31 +16,31 @@ sReportData = '{"details":"readiness is not yet ready"}';
 
 // declare a bunyan logging instance
 var log = bunyan.createLogger({
-    name: "readiness",
-    level: 0,
-    streams: [
-      {
-        level: 'info',
-        path: sLogFileInfoLog
-      },
-      {
-        level: 'error',
-        stream: process.stdout
-      }
-    ]
+  name: "readiness",
+  level: 0,
+  streams: [
+    {
+      level: 'info',
+      path: sLogFileInfoLog
+    },
+    {
+      level: 'error',
+      stream: process.stdout
+    }
+  ]
 });
 
 function determineTimeNowInSeconds() {
-   var iDtsNowInMilliseconds = (new Date).getTime();
-   var iDtsNowInSeconds = Math.floor(iDtsNowInMilliseconds / 1000);
+  var iDtsNowInMilliseconds = (new Date).getTime();
+  var iDtsNowInSeconds = Math.floor(iDtsNowInMilliseconds / 1000);
 
-   return iDtsNowInSeconds;
+  return iDtsNowInSeconds;
 };
 
 function determineElapsedTimeInSeconds( iStartTimeInSeconds ) {
-   var iElapsedTime = determineTimeNowInSeconds() - iDtsStartupInSeconds;
+  var iElapsedTime = determineTimeNowInSeconds() - iDtsStartupInSeconds;
 
-   return iElapsedTime;
+  return iElapsedTime;
 };
 
 var iDtsStartupInSeconds = determineTimeNowInSeconds();
@@ -66,8 +66,8 @@ process.on('SIGTERM', function () {
 
 // create the server handler for the report data
 var oServerReport = http.createServer(function (req, res) {
-   res.writeHead(200, {'Content-Type': 'text/json'});
-   res.end(sReportData);
+  res.writeHead(200, {'Content-Type': 'text/json'});
+  res.end(sReportData);
 }).listen(portNumber);
 
 log.info('readiness server running at port %d, checking for plugins', portNumber);
@@ -98,57 +98,57 @@ if( checkExistenceDirectory(nameFolderPlugins) == false ) {
 
 // the handler for obtaining results from the plugins
 function handlePluginResultsCallback(log,sResults) {
-   // set a variable with the parsed JSON results
-   var jsonContent = JSON.parse(sResults);
+  // set a variable with the parsed JSON results
+  var jsonContent = JSON.parse(sResults);
 
-   // copy the original data object
-   var oDataOriginal = JSON.parse(sReportData);
+  // copy the original data object
+  var oDataOriginal = JSON.parse(sReportData);
 
-   // remove the "readiness is not yet ready" from the details
-   // if it is still within the data
-   if("details" in oDataOriginal) {
-     delete oDataOriginal["details"];
-   };
+  // remove the "readiness is not yet ready" from the details
+  // if it is still within the data
+  if("details" in oDataOriginal) {
+    delete oDataOriginal["details"];
+  };
 
-   // update the results for this plugin name with the entire response
-   // from the plugin
-   oDataOriginal[ jsonContent.name ] = sResults;
+  // update the results for this plugin name with the entire response
+  // from the plugin
+  oDataOriginal[ jsonContent.name ] = sResults;
 
-   // write a string of the updated object to the report variable
-   sReportData = JSON.stringify(oDataOriginal);
+  // write a string of the updated object to the report variable
+  sReportData = JSON.stringify(oDataOriginal);
 
-   // log the response
-   log.debug('updated report data: %s',sReportData);
+  // log the response
+  log.debug('updated report data: %s',sReportData);
 };
 
 // loads and runs the Node.js plugins in the plugins folder
 function loadAndRunPlugins() {
-   // load and start the plugins
-   fs.readdir(nameFolderPlugins, (err, files) => {
-     files.forEach(file => {
-       log.info('readiness found file within plugin folder: %s', file);
-       // TODO: this should handle other extensions such as python py, bash scripts, etc.
-       if( file.endsWith('.js') == true ) {
-         log.info('readiness found file with .js extension: %s', file);
-         var sRequireFileName = file.substring( 0, file.indexOf( ".js" ) );
-         var sRequireFile = './plugins/'+sRequireFileName;
-         var plugin = require( sRequireFile );
-         plugin.runPlugin(log,handlePluginResultsCallback);
-         log.info('readiness obtained plugin name: %s',plugin.name);
-       } else {
-         log.info('readiness found file without .js extension, not treating as a plugin: %s', file);
-       };
-     });
-   });
+  // load and start the plugins
+  fs.readdir(nameFolderPlugins, (err, files) => {
+    files.forEach(file => {
+      log.info('readiness found file within plugin folder: %s', file);
+      // TODO: this should handle other extensions such as python py, bash scripts, etc.
+      if( file.endsWith('.js') == true ) {
+        log.info('readiness found file with .js extension: %s', file);
+        var sRequireFileName = file.substring( 0, file.indexOf( ".js" ) );
+        var sRequireFile = './plugins/'+sRequireFileName;
+        var plugin = require( sRequireFile );
+        plugin.runPlugin(log,handlePluginResultsCallback);
+        log.info('readiness obtained plugin name: %s',plugin.name);
+      } else {
+        log.info('readiness found file without .js extension, not treating as a plugin: %s', file);
+      };
+    });
+  });
 };
 
 // the self-calling loop for the plugins
 function runPluginLoop() {
-   // load and run the plugins
-   loadAndRunPlugins();
+  // load and run the plugins
+  loadAndRunPlugins();
 
-   // call ourselves to run the plugins after a delay
-   setTimeout(runPluginLoop,iTimeInMillisecondsPluginLoop);
+  // call ourselves to run the plugins after a delay
+  setTimeout(runPluginLoop,iTimeInMillisecondsPluginLoop);
 };
 
 // start running the plugins
