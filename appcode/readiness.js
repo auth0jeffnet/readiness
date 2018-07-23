@@ -4,7 +4,7 @@ var bunyan = require('bunyan');
 var fs = require('fs');
 
 // the port number for the report
-iPortNumber = 54321;
+portNumber = 54321;
 // the fodler for the plugins
 var nameFolderPlugins = '/opt/auth0/readiness/appcode/plugins/';
 // the log file for the service
@@ -68,9 +68,9 @@ process.on('SIGTERM', function () {
 var oServerReport = http.createServer(function (req, res) {
    res.writeHead(200, {'Content-Type': 'text/json'});
    res.end(sReportData);
-}).listen(iPortNumber);
+}).listen(portNumber);
 
-log.info('readiness server running at port %d, checking for plugins', iPortNumber);
+log.info('readiness server running at port %d, checking for plugins', portNumber);
 
 // checks for directory existence
 function checkExistenceDirectory(sDirectoryName) {
