@@ -66,6 +66,8 @@ The plugin should provide a JSON response containing at least these attributes:
   * runPlugin()
 
 # Future Enhancements
+* **test cases**: create a set of test cases to test each of the functions within
+  the readiness event handler (readiness.js) and each of the plugins
 * **profiles**: create a set of configuration "profiles" that define the desired
   values for specific environments (minimum, recommended) and then
   applies these requirements against the determined readiness data

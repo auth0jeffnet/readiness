@@ -1,7 +1,7 @@
 
 var child_process = require('child_process');
 
-sCurlRequest = '/usr/bin/curl --max-time 10 --stderr - http://apt-mirror.it.auth0.com';
+var sCurlRequest = '/usr/bin/curl --max-time 10 --stderr - http://apt-mirror.it.auth0.com';
 
 module.exports = {
   frequency_in_seconds: 15,
@@ -32,14 +32,9 @@ module.exports = {
   },
 
   renderPluginData: function(log,sPluginData) {
-    var returnData = {
-      name: this.name,
-      helplink: this.helplink,
-      results: JSON.stringify( sPluginData )
-    };
-
-    return JSON.stringify( returnData );
+    this.results = sPluginData;
+    return JSON.stringify(this);
   }
-};
 
+};
 
