@@ -12,27 +12,24 @@ module.exports = {
   helplink: "https://auth0.com/docs/appliance/infrastructure/ip-domain-port-list",
 
   runPlugin: function(log,fxResultsCallback) {
-    sPluginData = this.getData(log);
-    sReturnData = this.renderPluginData(log,sPluginData);
-    fxResultsCallback(log,sReturnData);
+    this.getData(log);
+    sReturnData = this.renderPluginData(log);
+    fxResultsCallback(sReturnData);
   },
 
   getData: function(log) {
-    sOutput = "";
     try {
-      sOutput = child_process.execSync(sCurlRequest, (err, stdout, stderr) => {
-        sOutput += stdout;
-        sOutput += stderr;
+      this.output = child_process.execSync(sCurlRequest, (err, stdout, stderr) => {
+        this.stdout = stdout;
+        this.stderr = stderr;
       });
     } catch (ex) {
-      sOutput += ex.stdout;
-      sOutput += ex.stderr;
+      this.stdout = ex.stdout;
+      this.stderr = ex.stderr;
     };
-    return sOutput;
   },
 
-  renderPluginData: function(log,sPluginData) {
-    this.results = sPluginData;
+  renderPluginData: function(log) {
     return JSON.stringify(this);
   }
 

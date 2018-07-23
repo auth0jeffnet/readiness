@@ -51,20 +51,16 @@ should be exposed/exported by the plugin:
 * **runPlugin(log,callback)**: this is the method readiness.js calls to request the
   check from a plugin
 
-The plugin should provide a JSON response containing at least these attributes:
-* **name**: this is the name associated to the key for the result data and should be unique
-  for each plugin and associated result set
-* **results**: a string that contains the response of the check. This can be any format that
-  can be embedded within the JSON string value (such as text for /proc/meminfo, a buffer for
-  wget, strings, etc.) since interpretation of these results will be handled differently
-  for each different type of response
+The plugin should provide a JSON response containing at least the `name` attribute. This
+is the name associated to the key for the result data and should be unique for each plugin
+and associated result set. The response itself can be any format that
+can be embedded within the JSON string value (such as text for /proc/meminfo, a buffer for
+wget, strings, etc.) since interpretation of these results will be handled differently
+for each different type of response.
 
 # Known Issues
 * only Node.js plugins with a .js extension are handled (i.e. python files, bash
   scripts, etc. are not yet handled)
-* plugins must expose the required interfaces otherwise the service will crash:
-  * name
-  * runPlugin()
 
 # Future Enhancements
 * **test cases**: create a set of test cases to test each of the functions within
