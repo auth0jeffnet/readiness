@@ -12,7 +12,7 @@ sLogFileInfoLog = '/tmp/readiness-info.log'
 // the "sleep" time between polling intervals
 iTimeInMillisecondsPluginLoop = 60000;
 // the initial report data
-sReportData = '{"details":"readiness is not yet ready"}';
+sReportData = '{"readiness":"readiness is not yet ready"}';
 
 // declare a bunyan logging instance
 var log = bunyan.createLogger({
@@ -110,10 +110,10 @@ function handlePluginResultsCallback(log,sResults) {
   // copy the original data object
   var oDataOriginal = JSON.parse(sReportData);
 
-  // remove the "readiness is not yet ready" from the details
-  // if it is still within the data
-  if("details" in oDataOriginal) {
-    delete oDataOriginal["details"];
+  // remove the "readiness is not yet ready" associated with the readiness
+  // key if it is still within the data
+  if("readiness" in oDataOriginal) {
+    delete oDataOriginal["readiness"];
   };
 
   // update the results for this plugin name with the entire response
