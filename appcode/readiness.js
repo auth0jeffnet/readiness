@@ -139,6 +139,19 @@ function runPluginLoop() {
 var iDtsStartupInSeconds = determineTimeNowInSeconds();
 log.info('readiness startup requested at epoch time: %d', iDtsStartupInSeconds);
 
+// determine if the plugins folder exists
+if( checkExistenceDirectory(nameFolderPlugins) == false ) {
+  log.error('readiness unable to find plugin folder: %s', nameFolderPlugins);
+  // while this directory could be created using the code
+  // fs.mkdirSync(sDirectoryName);
+  // this is probably the least-expected action since the
+  // user would likely have specified a plugin folder they
+  // expected to exist
+  return;
+};
+
+log.info('readiness found plugin folder: %s', nameFolderPlugins);
+
 registerSignalHandlers();
 
 // create the server handler for the report data
@@ -147,19 +160,7 @@ var oServerReport = http.createServer(function (req, res) {
   res.end(sReportData);
 }).listen(portNumber);
 
-log.info('readiness server running at port %d, checking for plugins', portNumber);
-
-// determine if the plugins folder exists
-if( checkExistenceDirectory(nameFolderPlugins) == false ) {
-  log.info('readiness unable to find plugin folder: %s', nameFolderPlugins);
-  // while this directory could be created using the code
-  // fs.mkdirSync(sDirectoryName);
-  // this is probably the least-expected action since the
-  // user would likely have specified a plugin folder they
-  // expected to exist
-} else {
-  log.info('readiness found plugin folder: %s', nameFolderPlugins);
-};
+log.info('readiness server running at port %d, starting plugin loop', portNumber);
 
 // start running the plugins
 runPluginLoop();
