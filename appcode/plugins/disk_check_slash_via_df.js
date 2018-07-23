@@ -1,15 +1,17 @@
 
 var child_process = require('child_process');
 
-var sCurlRequest = '/usr/bin/curl --max-time 10 http://apt-mirror.it.auth0.com';
+var path = '/'
+
+var commandToPerform = 'df -k ' + path;
 
 module.exports = {
-  frequency_in_seconds: 15,
+  frequency_in_seconds: 60,
   version: "20180718r001",
-  name: "curl_check_updates_http",
-  summary: "Performs a curl connectivity test against the URL http://apt-mirror.it.auth0.com",
-  description: "Performs a curl connectivity test against the URL http://apt-mirror.it.auth0.com with a timeout of 10 seconds",
-  helplink: "https://auth0.com/docs/appliance/infrastructure/ip-domain-port-list",
+  name: "disk_check_slash_via_df",
+  summary: "Checks the disk space of / (slash)",
+  description: "Checks the disk space of / (slash) using the df -h method",
+  helplink: "https://auth0.com/docs/appliance/infrastructure/virtual-machines",
 
   runPlugin: function(log,fxResultsCallback) {
     this.getData(log);
@@ -19,7 +21,7 @@ module.exports = {
 
   getData: function(log) {
     try {
-      this.outputObject = child_process.execSync(sCurlRequest, (err, stdout, stderr) => {
+      this.outputObject = child_process.execSync(commandToPerform, (err, stdout, stderr) => {
         this.stdout = stdout;
         this.stderr = stderr;
       });
