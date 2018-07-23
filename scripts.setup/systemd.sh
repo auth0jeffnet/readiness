@@ -9,6 +9,9 @@ if [[ $EUID -ne 0 ]] ; then
    # exit 1
 fi
 
+# NOTE: If installed/cloned into /opt/auth0/readiness, the
+# service should be enabled as follows:
+#     sudo systemctl enable /opt/auth0/readiness/conf.systemd/readiness.service
 # 
 # check for the systemd configuration in /etc/auth0/readiness.service
 # and if it already exists, these steps should not be performed since
